@@ -1,0 +1,72 @@
+### Pruebas con la extensión REST Client de VS Code
+### Ejecutar antes: python manage.py runserver  y  python manage.py seed
+@base = http://127.0.0.1:8000/api
+@auth = Basic ana:clave12345
+
+### 1. Raíz HATEOAS (descubrir recursos)
+GET {{base}}/
+
+### 2. Listar tareas (paginado: 5 por página)
+GET {{base}}/tareas/
+
+### 3. Filtro + paginación + ordenamiento
+GET {{base}}/tareas/?status=activo&page=1&ordering=-created
+
+### 4. Búsqueda y filtros avanzados
+GET {{base}}/tareas/?search=api&prioridad_min=2
+
+### 5. Crear tarea SIN autenticación -> 403 Forbidden
+POST {{base}}/tareas/
+Content-Type: application/json
+
+{"titulo": "Sin login", "proyecto": "{{base}}/proyectos/1/"}
+
+### 6. Crear tarea autenticado -> 201 Created
+POST {{base}}/tareas/
+Authorization: {{auth}}
+Content-Type: application/json
+
+{"titulo": "Nueva tarea desde REST Client", "prioridad": 2, "proyecto": "{{base}}/proyectos/1/"}
+
+### 7. Validación: prioridad ALTA sin fecha límite -> 400 Bad Request
+POST {{base}}/tareas/
+Authorization: {{auth}}
+Content-Type: application/json
+
+{"titulo": "Urgente", "prioridad": 3, "proyecto": "{{base}}/proyectos/1/"}
+
+### 8. Actualización parcial (PATCH -> partial_update)
+PATCH {{base}}/tareas/1/
+Authorization: {{auth}}
+Content-Type: application/json
+
+{"status": "activo"}
+
+### 9. @action personalizada (detail=True)
+POST {{base}}/tareas/1/cambiar_estado/
+Authorization: {{auth}}
+Content-Type: application/json
+
+{"status": "completado"}
+
+### 10. @action personalizada (detail=False)
+GET {{base}}/tareas/mias/
+Authorization: {{auth}}
+
+### 11. Estadísticas de un proyecto
+GET {{base}}/proyectos/1/estadisticas/
+
+### 12. Preflight CORS desde origen permitido -> headers Access-Control-Allow-*
+OPTIONS {{base}}/tareas/
+Origin: http://localhost:5173
+Access-Control-Request-Method: POST
+
+### 13. Origen NO permitido -> sin header Access-Control-Allow-Origin
+GET {{base}}/tareas/
+Origin: http://malicioso.com
+
+### 14. Token CSRF para SPA
+GET {{base}}/csrf/
+
+### 15. Esquema OpenAPI
+GET {{base}}/schema/
