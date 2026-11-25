@@ -4,3 +4,8 @@ __pycache__/
 db.sqlite3
 .env
 .vscode/
+
+# Documentos de entrega (se mantienen fuera del repositorio)
+Guia_Practica_Semana_13.pdf
+Informe_Practica_Semana_13.docx
+~$*
